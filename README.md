@@ -1,5 +1,9 @@
 # dendriteAnalysis
 
+## Toolboxes required
+- tdmsread requires one of the following:
+  Communications Toolbox
+  Data Acquisition Toolbox
 
 ## File Structure
 ```
