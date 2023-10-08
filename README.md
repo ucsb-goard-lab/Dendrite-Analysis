@@ -2,7 +2,7 @@
 
 
 ## File Structure
-
+```
 dendriteAnalysisMaster
 │   dendriteAnalysisMaster.m
 │
@@ -60,6 +60,7 @@ dendriteAnalysisMaster
 |    |    extractDFF.m 
 |    |    C_extractDFF.m (SubFunction of extractDFF)
 │
-└───Task5_ComputeCoTuning 
+└───Task5_ComputeCoTuning
      |    calculateCoTuning.m 
      |    HPC_Analysis_Pipeline_Dendrites.m (SubFunction of calculateCoTuning )
+```
