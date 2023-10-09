@@ -49,10 +49,10 @@ dendriteAnalysisMaster
 |   |
 |   └───SubFunctions_extractMainROIs 
 |        |    B_DefineROI.m 
-|        |  subroutine_interactiveROI.m (SubFunction of B_DefineROI)
-|        |  subroutine_transferROI.m (SubFunction of B_DefineROI)
-|        |  subroutine_normalize.m (SubFunction of subroutine_interactiveROI)
-|        |   replotImage (defined in subroutine_manualAnchorPoints, SubFunction of subroutine_interactiveROI)
+|        |    subroutine_interactiveROI.m (SubFunction of B_DefineROI)
+|        |    subroutine_transferROI.m (SubFunction of B_DefineROI)
+|        |    subroutine_normalize.m (SubFunction of subroutine_interactiveROI)
+|        |    replotImage (defined in subroutine_manualAnchorPoints, SubFunction of subroutine_interactiveROI)
 │
 ├───Task3_GetSubROIsAndBranchROIs 
 |    |    getZoom.m 
