@@ -1,6 +1,12 @@
 %% Chronic dendrite analysis master pipeline
 dfols = dir('*DendritesDAY*');
-addpath(genpath('E:\Code\HPC_pipeline'))
+addpath(genpath(fileparts(mfilename('fullpath')))); %Adds all subfolders inside dendriteAnalysisMaster to the path
+
+if isempty(dfols)
+    disp("Please navigate to your data folder that should have " + ...
+        "data folders inside labeled 'DendritesDAY*' with 'TSeries*' " + ...
+        "folders inside and run this script again.")
+end
 
 for ii = 1:length(dfols)
     curr_dfol = dfols(ii).name;
@@ -8,6 +14,8 @@ for ii = 1:length(dfols)
     cd(curr_dfol)
     rfols = dir('TSeries*');
     for rr = 1:length(rfols)
+        addpath(genpath(pwd));
+        disp(rr);
         curr_rfol = rfols(rr).name;
         cd(curr_rfol) % move into current recording directory
 
@@ -18,7 +26,7 @@ for ii = 1:length(dfols)
         save(fname,'Neurotar')
 
         % extract from suite2p; inpts = (F, Fneu, save_flag, deconcat_flag, num_envs, frames, short_frames)
-        Fall = importdata("suite2p\plane0\Fall.mat");
+        Fall =  importdata(fullfile('suite2p', 'plane0', 'Fall.mat'));% suite2p folder should be in Tseries* data folder
         data = suite2p2data(Fall.F,Fall.Fneu,1,0,1,frames,frames);
         [valid_PCs, selected_PCs] = HPC_Analysis_Pipeline_SingleEnv(1,[],[],...
             0, 0, 1, 1, 1, frames);

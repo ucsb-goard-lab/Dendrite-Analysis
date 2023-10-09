@@ -1,5 +1,5 @@
 classdef NewNeurotarExtractor < handle
-    
+
     properties (Access = public)
         FILENAME
         CAGE_RADIUS = 125
@@ -12,7 +12,7 @@ classdef NewNeurotarExtractor < handle
     end
 
     properties
-        isRecording 
+        isRecording
         isMoving
         moving_times
     end
@@ -29,7 +29,7 @@ classdef NewNeurotarExtractor < handle
     methods
         % Constructor
         function obj = NewNeurotarExtractor(session, options)
-            
+
             arguments
                 session
                 options.isRecording = true
@@ -71,33 +71,22 @@ classdef NewNeurotarExtractor < handle
     methods
 
         function getFilename(obj)
-
-%             folder = uigetdir([], 'Choose the folder containing the file:');
-% 
-%             tdms_files = strcat(folder, filesep, '*.tdms');
-%             file_location = dir(tdms_files);
-%             filename = strcat(file_location.folder, filesep, ...
-%                 file_location.name);
-%             obj.FILENAME = filename;
-
-              % disp('Choose tdms file...')
-              % [tdms_file,path] = uigetfile('*.tdms');
-              tdms_file = dir('*.tdms');
-              path = strcat(tdms_file.folder,'\');
-              tdms_file = tdms_file.name;
-              obj.FILENAME = strcat(path,tdms_file); % must be on path
+            tdms_file = dir('*.tdms');
+            path = fullfile(tdms_file.folder, '');
+            tdms_file = tdms_file.name;
+            obj.FILENAME = fullfile(path, tdms_file); % must be on path
         end
 
         function data = readTDMS(obj)
 
             data = tdmsread(obj.FILENAME);
             obj.data = data{1,3};
-            
+
         end
 
     end
-    
-    
+
+
     % Extracting and microscope-matching methods
     methods
 
@@ -144,7 +133,7 @@ classdef NewNeurotarExtractor < handle
             variable = obj.getVariable(variable_name);
             cropped_variable = obj.cropToRecording(variable);
             behavior_variable = obj.downSample(cropped_variable);
-            
+
         end
 
         function cropped_variable = cropToRecording(obj, variable)
@@ -167,7 +156,7 @@ classdef NewNeurotarExtractor < handle
     end
 
     % Get behavior variables
-    methods 
+    methods
 
         function speed = get.speed(obj)
 

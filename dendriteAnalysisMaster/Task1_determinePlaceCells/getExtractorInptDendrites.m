@@ -2,7 +2,7 @@ function [short_frames, rrate, fname]  = getExtractorInptDendrites()
 
 fname= 'floating.mat'; % specify filenames
 
-Fall = importdata('suite2p\plane0\Fall.mat');
+Fall = importdata(fullfile('suite2p', 'plane0', 'Fall.mat'));
 frames = size(Fall.F,2);
 
 % get the number of frames that correspond to the neurotar recording
