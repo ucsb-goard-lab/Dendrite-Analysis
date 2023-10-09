@@ -1,9 +1,12 @@
 # dendriteAnalysis
 
+*Note: tdmsREAD is not supported on Silicon Mac
+
 ## Toolboxes required
-- tdmsread requires one of the following:
-  Communications Toolbox
-  Data Acquisition Toolbox
+- Image Processing Toolbox
+- Statistics and Machine Learning Toolbox
+- Computer Vision Toolbox
+- Data Acquisition Toolbox or Communications Toolbox
 
 ## File Structure
 ```
