@@ -25,6 +25,7 @@ dendriteAnalysisMaster
 │   │       spikeInference.m
 │   │       deconvolveCa.m
 │   │       DeConcatenateEnvironments_v2.m
+|   |       subroutine_test_r_HPC
 │   │
 │   └───SubFunctions_HPC_Analysis_Pipeline_SingleEnv
 │           Spike_Max.m
