@@ -26,6 +26,11 @@ dendriteAnalysisMaster
 │   │       deconvolveCa.m
 │   │       DeConcatenateEnvironments_v2.m
 |   |       subroutine_test_r_HPC
+|   |       subroutine_find_corr_HPC
+|   |       GetSn
+|   |       estimate_time_constant
+|   |       foopsi_oasisAR1
+|   |       oasisAR1
 │   │
 │   └───SubFunctions_HPC_Analysis_Pipeline_SingleEnv
 │           Spike_Max.m
@@ -42,6 +47,7 @@ dendriteAnalysisMaster
 │           plotOneD_SingleEnv.m
 │           plotSuite2pCellMasks.m
 │           Save_Data.m
+│           colormapMaker
 │           getLaps.m (SubFunction of OneD_Track_Anaysis_v2)
 │           Spatial_Information_v2.m (SubFunction of PC_reliability_checker_WTR_v2 and SpatialInfoComputer)
 │
@@ -68,7 +74,9 @@ dendriteAnalysisMaster
 |    |    extractDFF.m 
 |    |    C_extractDFF.m (SubFunction of extractDFF)
 │
-└───Task5_ComputeCoTuning
-     |    calculateCoTuning.m 
-     |    HPC_Analysis_Pipeline_Dendrites.m (SubFunction of calculateCoTuning )
+├───Task5_ComputeCoTuning
+│    |    calculateCoTuning.m 
+│    |    HPC_Analysis_Pipeline_Dendrites.m (SubFunction of calculateCoTuning )
+|
+└─── natsortfiles
 ```
