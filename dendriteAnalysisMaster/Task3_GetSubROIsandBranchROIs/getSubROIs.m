@@ -4,7 +4,7 @@ function [subROIs, branchROIs] = getSubROIs(selected_PCs,microns)
 %   operations to process the masks and extract sub-ROIs and branch ROIs.
 %
 %   Input:
-%       - selected_PCs: An array of indices of selected dendritic masks. 
+%       - selected_PCs: An array of indices of selected dendritic masks.
 %                       These can be obtained from the extractMainROIs function.
 %       - microns: The size of the micron (e.g., 414 microns). This can be
 %                  obtained from the getZoom function.
@@ -19,8 +19,6 @@ function [subROIs, branchROIs] = getSubROIs(selected_PCs,microns)
 %   See also: binarizeMeanGausProjection_NSWEdit, getBranchPoints_NSWEdit,
 %             bwtraceboundary, pgonCorners.
 
-
-addpath(genpath('E:\Code\DendriticSpines_Marie'))
 
 ROI_size = 6; % microns for subROI splitting !ASK why 6 again?
 fname = dir('*registered_data.mat');
@@ -39,49 +37,28 @@ for ii = 1:length(selected_PCs)
     ymax = max(curr_mask(:,2));
     ROI_box = image(ymin:ymax,xmin:xmax); % part of image containing ROI
 
-    % binarize and skeletonize image to find branch points
-    basedir = pwd;
-    BW = binarizeMeanGausProjection_NSWEdit(ROI_box,'binarizedProjection',...
-        basedir,0,length(ROI_box), 0, 1, 0);
-    skeleton1    = bwmorph(BW,'thin',inf);
-    se = strel('disk',3);
-    di = imdilate(skeleton1,se);
-    closed = imclose(di,se);
-    skeleton1 = bwmorph(closed,'thin',inf); % dilate a little bit to get rid of small "branches"
-    [x_end   , y_end]    = find((bwmorph(skeleton1, 'endpoints'))');
-    [x_branch, y_branch] = getBranchPoints_NSWEdit(skeleton1,x_end, y_end);
-    objs = [];
-    answer = questdlg('Would you like to connect branch points?', ...
-        'Options', 'Yes','No','No');
-    if strcmp(answer,'Yes') % if user does want to connect branch points
-        regions = regionprops(skeleton1);
-        n_endpoints = length(regions)*2-2;
-        disp('Please click on points you would like to connect')
-        figure
-        skeleton_small = skeleton1(1:size(ROI_box,1),1:size(ROI_box,2));
-        overlay = imoverlay(mat2gray(ROI_box),skeleton_small,'yellow');
-        imshow(overlay)
-        set(gcf,'units','normalized','outerposition',[0 0 1 1])
-        hold on
-        [x_endp,y_endp] = ginput(n_endpoints);
-        image_skeleton = skeleton1;
-        for ee = 1:length(x_endp)/2
-            image_skeleton_repaired = insertShape(double(image_skeleton),'line',[[round(x_endp(ee*2-1)),round(y_endp(ee*2-1))],...
-                [round(x_endp(ee*2)),round(y_endp(ee*2))]]);
-            se = strel('disk',2);
-            di = imdilate(image_skeleton_repaired,se);
-            closed = imclose(di,se);
-            closed = closed(:,:,2);
-            image_skeleton = bwmorph(closed,'thin',inf);
-        end
-        [x_end   , y_end]    = find((bwmorph(image_skeleton, 'endpoints'))');
-        [x_branch, y_branch] = getBranchPoints_NSWEdit(image_skeleton,x_end, y_end);
+    % User skeletonizes image to find branch points
+    image_skeleton = skeletonizeMeanGausProjection(ROI_box,0);
+
+    % User connects any branch points if the skeleton is disconnected
+    CC = bwconncomp(image_skeleton);
+    if CC.NumObjects == 1
+        % The image skeleton object is fully connected
     else
-        image_skeleton = skeleton1;
+        % The image skeleton object is not fully connected
+        answer = "Yes";
+        while answer ~= "No" % if user does want to connect branch points
+            answer = questdlg('Would you like to connect branch points?', ...
+            'Options', 'Yes','No','No');
+            if strcmp(answer,'Yes')
+            image_skeleton = connectBranchPoints(image_skeleton,ROI_box);
+            end
+        end
     end
-    se = strel('disk',10);
-    di = imdilate(image_skeleton,se);
-    closed = imclose(di,se); % re-dilate with a mask of 10 for boundary
+
+    [x_end   , y_end]    = find((bwmorph(image_skeleton, 'endpoints'))');
+    [x_branch, y_branch] = getBranchPoints_NSWEdit(image_skeleton,x_end, y_end);
+    objs = [];
 
     if any(x_branch) || any(y_branch) % if either vector isn't all zeros
         min_x = find(x_branch);
@@ -116,18 +93,14 @@ for ii = 1:length(selected_PCs)
 
         % plot results
         figure
-        subplot(2,2,1)
+        subplot(1,3,1)
         imagesc(ROI_box)
         title('Image segment')
-        subplot(2,2,2)
-        imshow(BW)
-        axis square
-        title('Binarized dendrite')
-        subplot(2,2,3)
+        subplot(1,3,2)
         imshow(image_skeleton)
         axis square
         title('Skeletonized dendrite')
-        subplot(2,2,4)
+        subplot(1,3,3)
         imagesc(image);
         hold on
         im = imshow(RGB_masks);
@@ -152,72 +125,23 @@ for ii = 1:length(selected_PCs)
 
     skeleton_parts = regionprops(image_skeleton);
     if length(skeleton_parts) > 1 % if part of the dendrite was missed
-        % for s = 1:length(skeleton_parts)-1
-        n_endpoints = length(skeleton_parts)*2-2;
-        disp('Please click on points you would like to connect')
-        figure
-        skeleton_small = image_skeleton(1:size(ROI_box,1),1:size(ROI_box,2));
-        overlay = imoverlay(mat2gray(ROI_box),skeleton_small,'yellow');
-        imshow(overlay)
-        set(gcf,'units','normalized','outerposition',[0 0 1 1])
-        hold on
-        [x_endp,y_endp] = ginput(n_endpoints);
-        for ee = 1:length(x_endp)/2
-            image_skeleton_repaired = insertShape(double(image_skeleton),'line',[[round(x_endp(ee*2-1)),round(y_endp(ee*2-1))],...
-                [round(x_endp(ee*2)),round(y_endp(ee*2))]]);
-            se = strel('disk',2);
-            di = imdilate(image_skeleton_repaired,se);
-            closed = imclose(di,se);
-            closed = closed(:,:,2);
-            image_skeleton = bwmorph(closed,'thin',inf);
-        end
-        se = strel('disk',10);
-        di = imdilate(image_skeleton,se); % fixed closed back to a mask of 10
-
-        % line1 = skeleton_parts(s).BoundingBox;
-        % skel1 = image_skeleton(floor(line1(2))-1:floor(line1(2))+ceil(line1(4)),...
-        %     floor(line1(1))-1:floor(line1(1))+ceil(line1(3)));
-        % [ys1, xs1] = find(skel1);
-        % endpoint1 = [round(xs1(end)) + round(line1(1)), round(ys1(end)) + round(line1(2))];
-        % line2 = skeleton_parts(s+1).BoundingBox;
-        % skel2 = image_skeleton(floor(line2(2))-1:floor(line2(2))+ceil(line2(4)),...
-        %     floor(line2(1))-1:floor(line2(1))+ceil(line2(3)));
-        % [ys2, xs2] = find(skel2);
-        % endpoint2 = [round(xs2(1)) + round(line2(1)), round(ys2(1)) + round(line2(2))];
-        % image_skeleton_repaired = insertShape(double(image_skeleton),'line',[endpoint1,endpoint2]);
-        % se = strel('disk',10);
-        % di = imdilate(image_skeleton_repaired,se);
-        % closed = imclose(di,se);
-        % closed = closed(:,:,2);
-        % image_skeleton = bwmorph(closed,'thin',inf);
-        % end
+        image_skeleton = connectBranchPoints(image_skeleton,ROI_box);
         figure
         imshow(image_skeleton)
         title('Corrected image skeleton')
     end
 
-    % break image into chunks at angles perpendicular to the dendrite
+    %% Skeleton Positioning: positioning the skeleton on the whole image based on its coordinates.
     skeleton_im = zeros(size(image));
-    skeleton_im(ymin:ymin+length(image_skeleton)-1,...
-        xmin:xmin+length(image_skeleton)-1) = image_skeleton; % put skeleton in position on whole image
+    skeleton_im(ymin:ymax,xmin:xmax) = image_skeleton; % put skeleton in position on whole image
+
     [y,x] = find(skeleton_im);
     skeleton_coords = [x,y];
+
+    %% Branch Handling & breaking the image into chunks at angles perpendicular to the dendrite
     if ~isempty(objs) % if there are branches, re-order skeleton coordinates so that it doesn't switch between branches
-        % blank_branch_im = zeros(size(image));
-        % branch_box = objs(1).BoundingBox;
-        % branch_box(1) = branch_box(1) + xmin;
-        % branch_box(2) = branch_box(2) + ymin; % translate coords to where it is on big image
-        % specific_branch = skeleton_im(round(branch_box(2))-2:round(branch_box(2))+round(branch_box(4)),...
-        %     round(branch_box(1))-2:round(branch_box(1))+round(branch_box(3)));
-        % first_branch = blank_branch_im; % get image with just first branch
-        % first_branch(round(branch_box(2))-2:round(branch_box(2))+round(branch_box(4)),...
-        %     round(branch_box(1))-2:round(branch_box(1))+round(branch_box(3))) = specific_branch;
-        % other_branches = skeleton_im; % get image with all other branches
-        % other_branches(round(branch_box(2))-2:round(branch_box(2))+round(branch_box(4)),...
-        %     round(branch_box(1))-2:round(branch_box(1))+round(branch_box(3))) = 0;
         blank_boundary_im = zeros(size(image));
-        blank_boundary_im(ymin:ymin+length(image_skeleton)-1,...
-            xmin:xmin+length(image_skeleton)-1) = image_skeleton_branches;
+        blank_boundary_im(ymin:ymax, xmin:xmax) = image_skeleton_branches;
         boundaries = bwboundaries(blank_boundary_im);
         b1 = boundaries{1};
         b1(floor(length(b1)/2):end,:) = []; % get rid of repeated coords
@@ -226,20 +150,14 @@ for ii = 1:length(selected_PCs)
         for b = 1:size(b1,1)
             curr_b = b1(b,:);
             other_branches(curr_b(1),curr_b(2)) = 0; % get rid of first branch coords
-        end
+         end
         [yo,xo] = find(other_branches);
-        % first, just get coords for first branch
-        % [yf,xf] = find(first_branch);
-        % % then, get coords for the rest of the image
-        % [yo,xo] = find(other_branches);
-        % % concatenate coords into one big array
-        % skeleton_coords = [[xf;xo],[yf;yo]];
         skeleton_coords = [[b1(:,2);xo],[b1(:,1);yo]];
         first_other = [xo(1),yo(1)];
     end
 
     mask_im = zeros(size(image)); % create whole dendrite mask as binary image
-    mask_im(ymin:ymin+length(di)-1,xmin:xmin+length(di)-1) = di;
+    mask_im(ymin:ymax,xmin:xmax) = di;
     [ym,xm] = find(mask_im); % get coordinates of mask
     mask_boundary = bwtraceboundary(mask_im,[ym(1),xm(1)],'N'); % output = y,x
 
