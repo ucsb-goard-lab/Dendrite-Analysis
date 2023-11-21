@@ -81,15 +81,6 @@ Relaunch matlab and it will resolve.
 ## 3. Getting Sub ROIs and Branch ROIs
 This task extracts ROIs from selected dendritic masks with interactive GUIs. It walks the user through creating a skeleton of each dendrite and extracing an ROI from the skeleton. The following output and GUIs appear in this task:
 
-Expected Output:
-```
-Getting sub-ROIs and branch ROIs...
-Saving Skeleton...
-Found 2 pieces of the dendrite
-Saving ROI...
-Saving ROI...
-```
-
 #### Selecting a Cell's ROI
 Select a polygon covering the entire region closely outlining a dendrite where your first point is your last point. If you forget to include any branches you can include them in a following step.
 ![Screenshot 2023-11-20 at 6 09 34 PM (2)](https://github.com/ucsb-goard-lab/dendriteAnalysis/assets/65988599/85684a49-a270-43c2-a1d4-67a0f7764fbb)
@@ -161,6 +152,15 @@ An interactive GUI will appear with 5 sliders to allow the user to adjust the RO
 If in the previous steps the branch was included in the dendrite's skeleton and selected in the branch dialogue, then a second ROI GUI will appear for the branch:
 
 ![Screenshot 2023-11-20 at 6 42 55 PM 2](https://github.com/ucsb-goard-lab/dendriteAnalysis/assets/65988599/89ceefec-b282-4ff3-877e-f7e9233554cd)
+
+Expected Output:
+```
+Getting sub-ROIs and branch ROIs...
+Saving Skeleton...
+Found 2 pieces of the dendrite
+Saving ROI...
+Saving ROI...
+```
 
 ## 4. Extracting DFF
 The script extractDFF.m employs the Goard Method to extract Delta F/F (DFF) signals from various Regions of Interest (ROIs) in a registered multipage TIF. It processes soma, dendrite, branch, and sub-ROI data using the C_ExtractDFF function. The script then restructures and filters the branch and sub-ROI data to eliminate small branches and empty cells. Finally, it constructs and saves data files (branch_ROIs.mat and subROIs.mat) containing the relevant information, such as cell masks, average projections, and file details. The DFF extraction is performed separately for branch and sub-ROI data, and the processed results are saved in the respective files.
