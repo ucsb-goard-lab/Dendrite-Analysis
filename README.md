@@ -68,15 +68,32 @@ dendriteAnalysisMaster
 |    └───SubFunctions_getSubROIs 
 |         |    binarizeMeanGausProjection_NSWEdit.m
 |         |    getBranchPoints_NSWEdit.m
-|         |    pgonCorners.m 
+|         |    pgonCorners.m
+|         |    connectBranchPoints.m
+|         |    extractROIAroundSkeleton.m
+|         |    interactiveROIAdjustment.m
+|         |    interactiveSkeleton.m
+|         |    selectBaseBranches.m
+|         |    separateSkeletonIntoBranches.m
+|         |    skeletonizeBinarizedBranch.m
+|         |    skeletonizeMeanGausProjection.m
+|         |    smoothROI.m
+|         |    userGetBranchPoints.m
 │
 ├───Task4_ExtractDFF 
-|    |    extractDFF.m 
-|    |    C_extractDFF.m (SubFunction of extractDFF)
+|    |    extractDFF.m
+|    └─── SubFunctions of extractDFF
+|         |    C_extractDFF.m ()
+|         |    subroutine_find_corr.m
+|         |    subroutine_progressbar.m
+|         |    subroutine_test_r.m
 │
 ├───Task5_ComputeCoTuning
-│    |    calculateCoTuning.m 
-│    |    HPC_Analysis_Pipeline_Dendrites.m (SubFunction of calculateCoTuning )
+│    |    calculateCoTuning.m
+|    └─── SubFunctions of 
+|         |    HPC_Analysis_Pipeline_Dendrites.m
+|         |    OneD_Track_Analysis_v2.m
+|         |    DFF_transients.m
 |
 └─── natsortfiles
 ```
