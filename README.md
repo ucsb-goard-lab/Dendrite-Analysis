@@ -17,7 +17,7 @@
 - Computer Vision Toolbox
 - Data Acquisition Toolbox or Communications Toolbox
 
-## File Structure
+## Project File Structure
 ```
 dendriteAnalysisMaster
 │   dendriteAnalysisMaster.m
