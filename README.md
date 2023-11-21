@@ -6,7 +6,7 @@
 1. Download `MATLAB`. This program was last running on `Matlab 2023a`. Older and newer versions of `MATLAB` may or may not be supported.
 2. Download the required toolboxes which can be found in the next section below.
 3. Clone the repository onto your machine using `git clone https://github.com/ucsb-goard-lab/dendriteAnalysis.git`
-4. Open the cloned respository in `MATLAB` and add the folder titled `dendriteAnalysisMaster` and all subfolders to your path.
+4. Navigate to the cloned respository within `MATLAB` and add the folder titled `dendriteAnalysisMaster` and all subfolders to your path.
 5. Open `dendriteAnalysisMaster.m`.
 6. Within `MATLAB` navigate to your data folder. It should be structured so there are folders inside labeled 'DendritesDAY*' where each of those folders contains 'TSeries*' folders with .tif files for analysis.
 7. Run `dendriteAnalysisMaster.m`.
