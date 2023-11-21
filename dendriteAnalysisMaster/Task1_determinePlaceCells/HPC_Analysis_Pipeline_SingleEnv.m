@@ -114,7 +114,7 @@ if plot_oneD
 end
 if plot_Location
     if ~isempty(valid_PCs)
-        addpath('E:\Code\Social Coding')
+        % addpath('E:\Code\Social Coding')
         selected_PCs = plotSuite2pCellMasks([],[],valid_PCs,[],1); % plot cell masks of PCs on suite2p data
     else
         disp('Could not display place cell locations: no place cells found')

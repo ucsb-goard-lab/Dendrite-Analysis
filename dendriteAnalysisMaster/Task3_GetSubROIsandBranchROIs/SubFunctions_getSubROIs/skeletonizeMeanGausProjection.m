@@ -1,4 +1,4 @@
-function skeleton = skeletonizeMeanGausProjection(mean_image,show_image_steps)
+function [skeleton, meanImageEnh_2] = skeletonizeMeanGausProjection(mean_image,show_image_steps)
 % Function binarizes mean Gaussian Projection converted from tif files of
 % microscopy images and resizes them to be consistent sizing if necessary
 
@@ -82,7 +82,6 @@ binarizedImage = mat2gray(zeros(size(meanImageEnh_2)));
 
 fig = figure;
 
-
 % Have the user draw an ROI around the binarized dendrite for editing
 imshowpair(meanImageEnh_2,binarizedImage)
 title('Please select the dendrite by drawing a polygon. Your last point should connect to your first point.','Color', 'b');
@@ -91,108 +90,81 @@ roi = drawpolygon();
 selected_dendrite = createMask(roi);
 selected_dendrite_in_image = im2double(meanImageEnh_2);
 selected_dendrite_in_image(~selected_dendrite) = 0;
-binarizedImage = imbinarize(selected_dendrite_in_image,threshold);
+close(gcf);  % Close the figure
 
-% Skeletonize Binarized Branch
-skeleton = skeletonizeBinarizedBranch(binarizedImage);
+%%
+[skeleton, threshold] = interactiveSkeleton(selected_dendrite_in_image, meanImageEnh_2);
+
+%%
+fig = figure;
 clf(fig);
 imshowpair(meanImageEnh_2,skeleton)
 set(gcf,'units','normalized','outerposition',[0 0 1 1])
 
-answer = ' ';
+answer2 = ' ';
+% Prompt the user if they would like to remove parts of the skeleton
+while ~strcmp(answer2,'Neither')
+    clf(fig);
+    imshowpair(meanImageEnh_2,skeleton)
+    set(gcf,'units','normalized','outerposition',[0 0 1 1])
+    answer2 = questdlg('Would you like to remove or add objects? If two points will not connect even when adding the section between them, you will have the oppportunity to connect these points in the next dialog.', 'Options','Remove Objects', 'Add Objects', 'Neither', 'Neither');
 
-while ~strcmp(answer,'No Change Needed')
-    % Prompt the user if they want to edit the skeleton
-    answer = questdlg('Would you like to edit the image further?', 'Options','Adjust Skeleton Sensitivity', 'Add or Remove Parts of Skeleton', 'No Change Needed','No Change Needed');
-
-    if strcmp(answer, 'Adjust Skeleton Sensitivity')
-        % Binarize the image with different thresholds
-        threshold1 = threshold * 0.5;
-        threshold2 = threshold;
-        threshold3 = threshold * 1.50;
-        skel1 = skeletonizeBinarizedBranch(imbinarize(selected_dendrite_in_image,threshold1));
-        skel2 = skeletonizeBinarizedBranch(imbinarize(selected_dendrite_in_image,threshold2));
-        skel3 = skeletonizeBinarizedBranch(imbinarize(selected_dendrite_in_image,threshold3));
-
-        % Create composite images
-        figure; imshowpair(skel1, meanImageEnh_2, 'montage'); comp1 = getframe(gcf); comp1 = comp1.cdata; close(gcf);
-        figure; imshowpair(skel2, meanImageEnh_2, 'montage'); comp2 = getframe(gcf); comp2 = comp2.cdata; close(gcf);
-        figure; imshowpair(skel3, meanImageEnh_2, 'montage'); comp3 = getframe(gcf); comp3 = comp3.cdata; close(gcf);
-
-        % Display the composite images using montage
-        clf(fig);
-        montage({comp1, comp2, comp3}, 'Size', [1 3], 'BorderSize', 10, 'BackgroundColor', 'w');
-        title(sprintf('thresholds shown = %.2f, %.2f, %.2f', threshold1, threshold2, threshold3));
-        set(gcf,'units','normalized','outerposition',[0 0 1 1])
-
-        % Prompt the user to select a threshold
-        prompt = {'Enter a new threshold value:'};
-        dlgtitle = 'Threshold Selection';
-        dims = [1 35];
-        definput = {num2str(threshold)};
-        answerT = inputdlg(prompt, dlgtitle, dims, definput);
-
-        % Binarize the image according to the user selected threshold
-        threshold = str2double(answerT{1});
-        binarizedImage = imbinarize(selected_dendrite_in_image,threshold);
-
-        % Skeletonize Binarized Branch
-        skeleton = skeletonizeBinarizedBranch(binarizedImage);
+    if or(strcmp(answer2, 'Add Objects'), strcmp(answer2, 'Remove Objects'))
+        % Draw polygon and create mask
         clf(fig);
         imshowpair(meanImageEnh_2,skeleton)
         set(gcf,'units','normalized','outerposition',[0 0 1 1])
-        continue;
-    end
+        title('Please select the parts you wish to add or remove by drawing a polygon. Your last point should connect to your first point.','Color', 'b');
+        waitfor(roi)
+        roi = drawpolygon();
+        mask = createMask(roi);
 
-    if strcmp(answer, 'Add or Remove Parts of Skeleton')
+        if strcmp(answer2, 'Add Objects')
+            selected_dendrite_in_image = im2double(meanImageEnh_2);
+            selected_dendrite = logical(selected_dendrite);
+            selected_dendrite = imadd(selected_dendrite,mask);
+            selected_dendrite_in_image(~selected_dendrite) = 0;
+            selected_dendrite_in_image(mask) = selected_dendrite_in_image(mask) .* brightness_factor ;
 
-        answer2 = ' ';
-        % Prompt the user if they would like to remove parts of the skeleton
-        while ~strcmp(answer2,'Neither')
+            % Skeletonize Binarized Branch
+            added_skeleton = skeletonizeBinarizedBranch(selected_dendrite_in_image,threshold);
+            added_skeleton(~mask) = 0;
+            added_skeleton = logical(added_skeleton);
+            skeleton = logical(skeleton);
+            skeleton = imadd(skeleton,added_skeleton);
+            skeleton = bwmorph(skeleton,'bridge');
+            skeleton = bwmorph(skeleton,'clean');
+            skeleton = bwmorph(skeleton,'diag');
+            skeleton = bwmorph(skeleton,'fill');
+            skeleton = bwmorph(skeleton,'spur',inf);
+            skeleton = bwmorph(skeleton,'thin');
+
             clf(fig);
             imshowpair(meanImageEnh_2,skeleton)
             set(gcf,'units','normalized','outerposition',[0 0 1 1])
-            answer2 = questdlg('Would you like to remove or add objects?', 'Options','Remove Objects', 'Add Objects', 'Neither', 'Neither');
 
-            if or(strcmp(answer2, 'Add Objects'), strcmp(answer2, 'Remove Objects'))
-                % Draw polygon and create mask
-                clf(fig);
-                imshowpair(meanImageEnh_2,skeleton)
-                set(gcf,'units','normalized','outerposition',[0 0 1 1])
-                title('Please select the parts you wish to add or remove by drawing a polygon. Your last point should connect to your first point.','Color', 'b');
-                waitfor(roi)
-                roi = drawpolygon();
-                mask = createMask(roi);
-
-                if strcmp(answer2, 'Add Objects')
-                    selected_dendrite_in_image = im2double(meanImageEnh_2);
-                    selected_dendrite = logical(selected_dendrite);
-                    selected_dendrite = imadd(selected_dendrite,mask);
-                    selected_dendrite_in_image(~selected_dendrite) = 0;
-                    selected_dendrite_in_image(mask) = brightness_factor * selected_dendrite_in_image(mask);
-                    binarizedImage = imbinarize(selected_dendrite_in_image,threshold);
-
-                    % Skeletonize Binarized Branch
-                    added_skeleton = skeletonizeBinarizedBranch(binarizedImage);
-                    added_skeleton(~mask) = 0;
-                    added_skeleton = logical(added_skeleton);
-                    skeleton = logical(skeleton);
-                    skeleton = imadd(skeleton,added_skeleton);
-                    skeleton = imbinarize(skeleton, threshold);
-                    clf(fig);
-                    imshowpair(meanImageEnh_2,skeleton)
-                    set(gcf,'units','normalized','outerposition',[0 0 1 1])
-
-                elseif strcmp(answer2, 'Remove Objects')
-                    skeleton(mask) = 0;
-                end
-            end
-            continue;
+        elseif strcmp(answer2, 'Remove Objects')
+            skeleton(mask) = 0;
         end
-    end
 
+    end
 end
 
 close(fig);
 
+%% User connects any points if the skeleton is disconnected
+CC = bwconncomp(skeleton);
+if CC.NumObjects == 1
+    % The image skeleton object is fully connected
+else
+    % The image skeleton object is not fully connected
+    answer = "Yes";
+    while answer ~= "No" % if user does want to connect branch points
+        % insert branch handling, make sure the output variables are available outside of this else statement scope though
+        skeleton = connectBranchPoints(skeleton,mean_image);
+        answer = questdlg('Do you want to connect more branch points?', 'Connect Branch Points', 'Yes', 'No', 'No');
+    end
 end
+
+end
+

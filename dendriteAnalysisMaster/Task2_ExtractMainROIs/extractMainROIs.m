@@ -1,7 +1,8 @@
 function [] = extractMainROIs(selected_PCs,Fall)
 % Extract main soma and dendrite ROI's using Goard Method's B_DefineROI
 % extracted ROIs are saved in the registered data file 
-addpath(genpath('E:\Code\Postprocessing'))
+% addpath(genpath('E:\Code\Postprocessing'))
+addpath(genpath(fullfile(fileparts(fileparts(pwd)), 'Postprocessing')));
 
 for cc = 1:length(selected_PCs)
     curr_cell = selected_PCs(cc);
