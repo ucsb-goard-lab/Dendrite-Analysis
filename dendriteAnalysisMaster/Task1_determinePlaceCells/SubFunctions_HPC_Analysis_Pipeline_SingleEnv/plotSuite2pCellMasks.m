@@ -42,7 +42,7 @@ for i = 1:length(cellIDs)
     hold on
 end
 
-% Choose which PCs you want to continue with
+% Manually identify which PCs have visible dendrites
 selected_PCs = []; % set in case flag is false
 if select_flag
     prompt = 'Enter place cells of interest separated by a single space:';
