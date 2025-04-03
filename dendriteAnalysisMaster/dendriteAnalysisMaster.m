@@ -40,7 +40,7 @@ for ii = 1:length(dfols)
 
         %% Step 3: get sub-ROIs and branch ROIs
         disp('Getting sub-ROIs and branch ROIs...')
-        % For the selected dendrite ROI's, break the ROI into two-micron chunks
+        % For the selected dendrite ROI's, break the ROI into four-micron chunks
         % Detect any branch points and break ROI into selected branches
         [zoom, microns] = getZoom();
         [subROIs, branchROIs] = getSubROIs(selected_PCs,microns); % also save to registered data file
@@ -55,7 +55,7 @@ for ii = 1:length(dfols)
         disp('Computing co-tuning...')
         % 1. Get co-tuning between dendrite and soma
         % 2. Get co-tuning between dendritic branches
-        % 3. Get co-tuning between 2um sub-ROIs
+        % 3. Get co-tuning between 4um sub-ROIs
         [cell_corr, branch_corr, sub_corr, subcell_corr] = calculateCoTuning(frames);
         cd ..
     end
