@@ -45,8 +45,6 @@ _*mean r_neuropil and percentage of place cells will vary_
 
 <img width="226" alt="Screenshot 2023-11-20 at 5 53 18 PM" src="https://github.com/ucsb-goard-lab/dendriteAnalysis/assets/65988599/013887c1-967d-470c-852c-4339870a3ad4">
 
-<img width="560" alt="Screenshot 2023-11-20 at 5 52 57 PM" src="https://github.com/ucsb-goard-lab/dendriteAnalysis/assets/65988599/55b49b49-3a4c-40e8-b274-7c7b189602d6">
-
 <img width="562" alt="Screenshot 2023-11-20 at 5 53 36 PM" src="https://github.com/ucsb-goard-lab/dendriteAnalysis/assets/65988599/2731df14-5658-4973-b451-4d83b0f24a14">
 
 ### 2. Extracting Main ROIs
